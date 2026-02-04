@@ -15,7 +15,7 @@ public class Backpack {
         System.out.println(item.getName() + " put in backpack " + owner);
     }
     public void showContents(){
-        System.out.println("==Player backpack: " + owner);
+        System.out.println("Player backpack: " + owner);
         if (items.isEmpty()){
             System.out.println("model.Backpack empty");
         } else {

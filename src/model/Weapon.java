@@ -13,4 +13,9 @@ public class Weapon extends GameItem {
     public int getDamage() {
         return damage;
     }
+    @Override
+    public String getType() {
+        return "WEAPON";
+    }
+
 }

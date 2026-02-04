@@ -1,43 +1,60 @@
-import exception.InvalidItemException;
-import model.Backpack;
-import model.GameItem;
+import controller.InventoryController;
+import interfaces.IInventoryService;
 import model.Potion;
 import model.Weapon;
-import java.util.ArrayList;
 import repository.ItemRepository;
 import service.InventoryService;
+import utils.ReflectionUtil;
 
 public class Main {
     public static void main(String[] args) {
-        InventoryService service = new InventoryService();
+        ItemRepository repo = new ItemRepository();
+        IInventoryService service = new InventoryService(repo); // интерфейс слева
+        InventoryController controller = new InventoryController(service);
+
+        System.out.println("Demo");
+        Weapon sword = new Weapon(0, "Iron Sword", 5.0, 120, 25);
+        sword.setBackpackid(1);
+
+        Potion potion = new Potion(0, "Healing Potion", 1.0, 60, 50);
+        potion.setBackpackid(2);
+
+        ReflectionUtil.inspectClass(sword);
 
         try {
-            System.out.println("--- Create item ---");
-            Weapon sword = new Weapon(0, "Excalibur", 10.5, 1000, 50);
-            sword.setBackpackid(1);
-            service.createNewItem(sword);
-
-            System.out.println("--- Baditem (exception test) ---");
-            Weapon badSword = new Weapon(0, "Broken Sword", -5, 100, 10);
-            service.createNewItem(badSword);
-
-        } catch (InvalidItemException e) {
-            System.out.println("Cath error: " + e.getMessage());
+            controller.createItem(sword);
+            controller.createItem(potion);
+        } catch (Exception e) {
+            System.out.println("Create error: " + e.getMessage());
         }
 
-        System.out.println("--- Update  ---");
-        GameItem item = service.findItem(1);
-        if (item != null) {
-            System.out.println("Name was: " + item.getName());
-            item.setName("LEGENDARY Excalibur");
+        System.out.println(" ITEMS SORTED BY PRICE (lambda)");
+        controller.listItemsSortedByPrice()
+                .forEach(item -> item.printInfo());
 
-            try {
-                service.updateItem(item);
-                GameItem updated = service.findItem(1);
-                System.out.println("It became a name" + updated.getName());
-            } catch (InvalidItemException e) {
-                System.out.println(e.getMessage());
-            }
+        System.out.println(" VALIDATION FAIL DEMO");
+        try {
+            Weapon badItem = new Weapon(0, "Bug Sword", -2.0, -10, 999);
+            badItem.setBackpackid(1);
+            controller.createItem(badItem);
+        } catch (Exception e) {
+            System.out.println("Expected validation exception: " + e.getMessage());
+        }
+
+        System.out.println("NOT FOUND DEMO");
+        try {
+            controller.getItem(999999);
+        } catch (Exception e) {
+            System.out.println("Expected not found exception: " + e.getMessage());
+        }
+
+
+        System.out.println("DELETE DEMO");
+        try {
+            controller.deleteItem(8);
+            System.out.println("Delete attempted for id=5");
+        } catch (Exception e) {
+            System.out.println("Delete exception: " + e.getMessage());
         }
     }
 }

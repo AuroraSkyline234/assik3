@@ -6,6 +6,10 @@ public class Potion extends GameItem {
         super(id, name, weight, gold_value);
         this.healAmount = healAmount;
     }
+    @Override
+    public String getType() {
+        return "POTION";
+    }
 
     @Override
     public void use() {
